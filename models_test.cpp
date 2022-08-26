@@ -103,6 +103,11 @@ TEST(Models, Thread) {
 
         while (true) {
             // clock_nanosleep
+            // Warning! Doesn't help, need timer or wait somehow
+            // Task how to get interrupt
+
+            // Timer
+            // https://man7.org/tlpi/code/online/dist/timers/real_timer.c.html
             const auto status = nanosleep(&tim, nullptr);
             if (status != 0) {
                 (void)error_code_fifo.push(ErrorFrame{ErrorCode::kSleepError});
