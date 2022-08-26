@@ -8,10 +8,9 @@ set(minor_version 3)
 set(branch_version 0)
 option(BUILD_CLANG_TIDY "Build with clang-tidy" OFF)
 option(BUILD_TESTS "Build tests" ON)
-option(WITH_DDS "Build with DDS" ON)
 
 option(BUILD_WITH_ASAN "Build with ASan" OFF)
-option(BUILD_WITH_TSAN "Build with TSan" ON)
+option(BUILD_WITH_TSAN "Build with TSan" OFF)
 option(BUILD_WITH_FUZZ "Build with AFL" OFF)
 
 set(CMAKE_VERBOSE_MAKEFILE true)
