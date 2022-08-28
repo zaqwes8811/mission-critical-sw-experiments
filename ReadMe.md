@@ -1,3 +1,19 @@
+# Idea
+- Study low latency, high performance code(minimal avg runtime)
+- Rt/AMP
+- Tech for interraction rt and non-rt
+
+# Cases
+
+Case0:
+Sigle core - one rt thread + interrupt
+Q: ISR -> RT thread how?
+
+Case1:
+Single core + two rt thread with preority + 2 IRQ
+Q: How to do it without locks? How to wait?
+
+# Buffer
 
 https://stackoverflow.com/questions/9886668/openal-playback-captured-audio-data-c
 
@@ -12,10 +28,7 @@ https://github.com/PortAudio/portaudio
 
 https://juce.com/
 
-# Idea
-- Study low latency, high performance code(minimal avg runtime)
-- Rt/AMP
-- Tech for interraction rt and non-rt
+
 
 Case: rt thread take buffers from pool(hoofs), fill with noize and send (rt-way) to another thread
 Q: how to measure latency?

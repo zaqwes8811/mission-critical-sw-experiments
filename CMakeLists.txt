@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
-set(project_name cpp-tricks)
-project(project_name)
+set(project_name real-time-experiments)
+project($project_name)
 
 set(generation_version 0)
 set(major_version 0)
