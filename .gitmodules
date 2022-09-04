@@ -7,3 +7,6 @@
 [submodule "3rdparty/iceoryx"]
 	path = 3rdparty/iceoryx
 	url = https://github.com/eclipse-iceoryx/iceoryx.git
+[submodule "3rdparty/bounded-integer"]
+	path = 3rdparty/bounded-integer
+	url = https://github.com/davidstone/bounded-integer.git

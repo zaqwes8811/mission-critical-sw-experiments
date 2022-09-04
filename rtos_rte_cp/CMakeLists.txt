@@ -5,11 +5,10 @@
 # -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++
 
 project(rtos_rte_cp)
-cmake_minimum_required(VERSION 2.8)
 
 find_package(GTest REQUIRED)
 
-set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD 17)
 
 # link the libraries to the executable
 if (UNIX)

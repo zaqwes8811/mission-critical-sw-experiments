@@ -36,3 +36,18 @@ Q: how to check, that code is minimal (no copy, no alloc, etc)
 
 [!!!!]
 https://www.youtube.com/watch?v=j2AgjFSFgRc&ab_channel=MeetingCpp
+
+# C++20
+```
+sudo apt install linuxbrew-wrapper
+brew install gcc@12
+export PATH="$HOME/.linuxbrew/bin:$PATH"
+
+CC=gcc-12 CXX=g++-12 cmake ..
+
+cmake -DCMAKE_C_COMPILER=gcc-12 -DCMAKE_CXX_COMPILER=g++-12 ..
+```
+
+```
+git submodule update --init --recursive
+```

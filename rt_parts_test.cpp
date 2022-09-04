@@ -10,6 +10,7 @@
 #include <memory_resource>
 
 #include "3rdparty/SG14/SG14/inplace_function.h"
+#include "3rdparty/bounded-integer/include/containers/static_vector.hpp"
 
 std::array<float, 1024> stack_mem;
 
@@ -29,3 +30,7 @@ std::array<int, 64> a;
 stdext::inplace_function<void(), 1024> no_op{[a = a] {}};
 
 static_assert(std::is_nothrow_move_assignable_v<decltype(no_op)>, "A");
+
+// Static vector
+containers::static_vector<int, 128u> sv;
+
