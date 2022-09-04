@@ -76,11 +76,11 @@ include_directories(${CMAKE_SOURCE_DIR}/3rdparty/bounded-integer/dependencies/nu
 include_directories(${CMAKE_SOURCE_DIR}/3rdparty/bounded-integer/dependencies/operators/include/)
 
 add_executable(rt_acs
-        ${CMAKE_SOURCE_DIR}/all_tests.cc
-        iceoyx_hoofs_test.cpp
-        models_test.cpp
-        rt_parts_test.cpp
-        rtos_rte_cp/RT-Clock/posix_clock.c
+        ${CMAKE_SOURCE_DIR}/tests/all_tests.cc
+        ${CMAKE_SOURCE_DIR}/tests/iceoyx_hoofs_test.cpp
+        ${CMAKE_SOURCE_DIR}/tests/models_test.cpp
+        ${CMAKE_SOURCE_DIR}/tests/rt_parts_test.cpp
+        ${CMAKE_SOURCE_DIR}/rtos_rte_cp/RT-Clock/posix_clock.c
         )
 
 

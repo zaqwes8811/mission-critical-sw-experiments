@@ -36,6 +36,8 @@
 
 #include "models.hpp"
 
+#include <semaphore>
+
 #include <gtest/gtest.h>
 
 #include <farbot/fifo.hpp>
@@ -73,6 +75,25 @@ constexpr nanoseconds timespecToDuration(const timespec& ts) {
     return duration_cast<nanoseconds>(duration);
 }
 
+std::weak_ptr<SensorFifo> g_sensor_fifo{};
+
+static void sigalrmHandler(int sig) {
+    auto ptr = g_sensor_fifo.lock();
+    if (!ptr) {
+        return;
+    }
+    auto rt_clk_time_stamp = timespec{};
+    clock_gettime(MY_CLOCK, &rt_clk_time_stamp);
+
+    const auto time_stamp = timespecToDuration(rt_clk_time_stamp);
+
+    const bool pushed = ptr->push(SensorFrame{time_stamp});
+    if (!pushed) {
+        //            (void)error_code_fifo.push(ErrorFrame{ErrorCode::kOverflow});
+        printf("Overflow\n");
+    }
+}
+
 TEST(Models, Thread) {
     print_scheduler();
 
@@ -85,66 +106,91 @@ TEST(Models, Thread) {
                rtclk_resolution.tv_sec, (rtclk_resolution.tv_nsec / 1000), rtclk_resolution.tv_nsec);
     }
 
-    auto error_code_fifo = ErrorCodeFifo{256};
-    auto sensor_fifo = SensorFifo{256};
-
-    auto model_fn = [&error_code_fifo, &sensor_fifo]() {
-        // Sleep? But it's system call
-
-        // filter for ADC
-
-        // Push filtered to queue?
-
-        // Time markers? realtime_safe
-
-        struct timespec tim {};
-        tim.tv_sec = 0;
-        tim.tv_nsec = 500'000L;
-
-        while (true) {
-            // clock_nanosleep
-            // Warning! Doesn't help, need timer or wait somehow
-            // Task how to get interrupt
-
-            // Timer
-            // https://man7.org/tlpi/code/online/dist/timers/real_timer.c.html
-            const auto status = nanosleep(&tim, nullptr);
-            if (status != 0) {
-                (void)error_code_fifo.push(ErrorFrame{ErrorCode::kSleepError});
-                printf("SleepError\n");
-                continue;  // ?
-//                return;
-            }
-
-            auto rt_clk_time_stamp = timespec{};
-            clock_gettime(MY_CLOCK, &rt_clk_time_stamp);
-
-            const auto time_stamp = timespecToDuration(rt_clk_time_stamp);
-
-            const bool pushed = sensor_fifo.push(SensorFrame{time_stamp});
-            if (!pushed) {
-                (void)error_code_fifo.push(ErrorFrame{ErrorCode::kOverflow});
-                printf("Overflow\n");
-            }
+    // Timers
+    struct sigaction sa {};
+    {
+        // TODO() How to create it as realtime?
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = 0;
+        sa.sa_handler = sigalrmHandler;
+        if (sigaction(SIGALRM, &sa, nullptr) == -1) {
+            perror("Can't set alarm");
+            exit(-1);
         }
-    };
 
-    auto model_th = std::thread(std::move(model_fn));
+        struct itimerval itv {};
+        itv.it_value.tv_sec = 0;
+        itv.it_value.tv_usec = 1;
+        itv.it_interval.tv_sec = 0;
+        itv.it_interval.tv_usec = 500;
+
+        if (setitimer(ITIMER_REAL, &itv, nullptr) == -1) {
+            perror("Can't set timer");
+            exit(-1);
+        }
+    }
+
+    auto error_code_fifo = ErrorCodeFifo{256};
+    auto sensor_fifo = std::make_shared<SensorFifo>(256);
+    g_sensor_fifo = sensor_fifo;
+
+    //    auto model_fn = [&error_code_fifo, &sensor_fifo]() {
+    //        // Sleep? But it's system call
+    //
+    //        // filter for ADC
+    //
+    //        // Push filtered to queue?
+    //
+    //        // Time markers? realtime_safe
+    //
+    //        struct timespec tim {};
+    //        tim.tv_sec = 10;
+    //        tim.tv_nsec = 500'000L;
+    //
+    //        while (true) {
+    //            // clock_nanosleep
+    //            // Warning! Doesn't help, need timer or wait somehow
+    //            // Task how to get interrupt
+    //
+    //            // Timer
+    //            // https://man7.org/tlpi/code/online/dist/timers/real_timer.c.html
+    //            const auto status = nanosleep(&tim, nullptr);
+    //            if (status != 0) {
+    //                (void)error_code_fifo.push(ErrorFrame{ErrorCode::kSleepError});
+    //                printf("SleepError\n");
+    //                continue;  // ?
+    //                           //                return;
+    //            }
+    //
+    //            auto rt_clk_time_stamp = timespec{};
+    //            clock_gettime(MY_CLOCK, &rt_clk_time_stamp);
+    //
+    //            const auto time_stamp = timespecToDuration(rt_clk_time_stamp);
+    //
+    //            const bool pushed = sensor_fifo.push(SensorFrame{time_stamp});
+    //            if (!pushed) {
+    //                (void)error_code_fifo.push(ErrorFrame{ErrorCode::kOverflow});
+    //                printf("Overflow\n");
+    //            }
+    //        }
+    //    };
+
+    //    auto model_th = std::thread(std::move(model_fn));
 
     // How to change priority after?
-    auto handle = model_th.native_handle();
+    //    auto handle = model_th.native_handle();
 
-    long  long last_tick = 0;
-    while(true) {
-        std::this_thread::sleep_for(50ms);
+    long long last_tick = 0;
+    while (true) {
+        std::this_thread::sleep_for(10ms);
         SensorFrame frame{};
 
-        while (sensor_fifo.pop(frame)) {
+        while (sensor_fifo->pop(frame)) {
             printf("T: %lld\n", frame.frame_stamp_.count() - last_tick);
             last_tick = frame.frame_stamp_.count();
         }
         printf("Next\n");
     }
 
-    model_th.join();
+    //    model_th.join();
 }

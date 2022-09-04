@@ -33,4 +33,3 @@ static_assert(std::is_nothrow_move_assignable_v<decltype(no_op)>, "A");
 
 // Static vector
 containers::static_vector<int, 128u> sv;
-
