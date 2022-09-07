@@ -24,6 +24,6 @@
 #   https://d-nb.info/1007034963/34
 
 # Need build libc++ without exceptions
-set(CMAKE_CXX_FLAGS "-fno-rtti -fno-exceptions ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-fno-rtti -fno-exceptions -Wall -Werror ${CMAKE_CXX_FLAGS}")
 add_library(safe_rt SHARED
         safe_eval.cpp)
