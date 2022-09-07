@@ -5,7 +5,7 @@
 //#include <typeinfo>
 
 
-void* rtti(   ) {
+void* rtti(   ) noexcept {
 //    auto a =typeid(int);
 //throw int();
 }

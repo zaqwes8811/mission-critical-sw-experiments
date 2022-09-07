@@ -17,6 +17,12 @@
 # Z3
 #   https://liu.diva-portal.org/smash/get/diva2:1366444/FULLTEXT01.pdf
 
+# General
+#   https://smallbusinessprogramming.com/safety-critical-software-15-things-every-developer-should-know/
+#   "Safety-critical software systems are often embedded, distributed systems"
+# Book
+#   https://d-nb.info/1007034963/34
+
 # Need build libc++ without exceptions
 set(CMAKE_CXX_FLAGS "-fno-rtti -fno-exceptions ${CMAKE_CXX_FLAGS}")
 add_library(safe_rt SHARED
