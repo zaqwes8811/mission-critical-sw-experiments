@@ -10,6 +10,9 @@
 #
 # Spaces
 #   https://solwit.com/en/innovation-acceleration/safety-critical-systems/
+#
+# Multiprocessor
+#   https://solwitsa.medium.com/multi-processor-solutions-in-safety-critical-systems-16a8036fe24a
 
 # Need build libc++ without exceptions
 set(CMAKE_CXX_FLAGS "-fno-rtti -fno-exceptions ${CMAKE_CXX_FLAGS}")
