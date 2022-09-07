@@ -7,6 +7,9 @@
 #
 # Design in general
 #   https://solwitsa.medium.com/guidelines-for-developing-safety-critical-systems-387511aee441
+#
+# Spaces
+#   https://solwit.com/en/innovation-acceleration/safety-critical-systems/
 
 # Need build libc++ without exceptions
 set(CMAKE_CXX_FLAGS "-fno-rtti -fno-exceptions ${CMAKE_CXX_FLAGS}")
