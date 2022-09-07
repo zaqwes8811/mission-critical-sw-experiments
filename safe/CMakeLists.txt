@@ -13,6 +13,9 @@
 #
 # Multiprocessor
 #   https://solwitsa.medium.com/multi-processor-solutions-in-safety-critical-systems-16a8036fe24a
+#
+# Z3
+#   https://liu.diva-portal.org/smash/get/diva2:1366444/FULLTEXT01.pdf
 
 # Need build libc++ without exceptions
 set(CMAKE_CXX_FLAGS "-fno-rtti -fno-exceptions ${CMAKE_CXX_FLAGS}")
