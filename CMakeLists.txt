@@ -75,6 +75,8 @@ include_directories(${CMAKE_SOURCE_DIR}/3rdparty/bounded-integer/include/)
 include_directories(${CMAKE_SOURCE_DIR}/3rdparty/bounded-integer/dependencies/numeric-traits/include/)
 include_directories(${CMAKE_SOURCE_DIR}/3rdparty/bounded-integer/dependencies/operators/include/)
 
+add_subdirectory(safe)
+
 add_executable(rt_acs
         ${CMAKE_SOURCE_DIR}/tests/all_tests.cc
         ${CMAKE_SOURCE_DIR}/tests/iceoyx_hoofs_test.cpp
