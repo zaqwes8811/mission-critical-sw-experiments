@@ -35,3 +35,7 @@ add_executable(app test_nomalloc.cpp)
 
 # Minimiz heap alloc
 # https://www.youtube.com/watch?v=ZXTI5iWHhrg&ab_channel=cpponsea
+
+# TODO()
+# thread failure detection
+# disable resursion
