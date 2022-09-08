@@ -39,3 +39,5 @@ add_executable(app test_nomalloc.cpp)
 # TODO()
 # thread failure detection
 # disable resursion
+# Toyota
+# https://users.ece.cmu.edu/~koopman/pubs/koopman14_toyota_ua_slides.pdf
