@@ -23,7 +23,12 @@
 # Book
 #   https://d-nb.info/1007034963/34
 
+# Disable heap
+#   https://stackoverflow.com/questions/40130374/gcc-how-to-disable-heap-usage-entirely-on-an-mcu
+
 # Need build libc++ without exceptions
-set(CMAKE_CXX_FLAGS "-fno-rtti -fno-exceptions -Wall -Werror ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-fno-rtti -fno-exceptions -Wall -Werror -Wl,--wrap=malloc ${CMAKE_CXX_FLAGS}")
 add_library(safe_rt SHARED
         safe_eval.cpp)
+
+add_executable(app test_nomalloc.cpp)
