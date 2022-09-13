@@ -4,3 +4,6 @@
 
 // https://stackoverflow.com/questions/11126093/how-do-i-know-if-my-server-has-numa
 // https://stackoverflow.com/questions/8154162/numa-aware-cache-aligned-memory-allocation
+
+// example
+// https://github.com/ReidAtcheson/numaallocator/blob/master/numaalloc.h
