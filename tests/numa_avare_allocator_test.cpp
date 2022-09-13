@@ -18,3 +18,8 @@
 
 // boost
 // https://www.boost.org/doc/libs/1_66_0/libs/fiber/doc/html/fiber/numa.html
+
+// C++
+// https://onlinelibrary.wiley.com/doi/full/10.1002/cpe.6887
+// https://github.com/osmhpi/pgasus
+// https://www.open-mpi.org/projects/hwloc/
