@@ -43,7 +43,7 @@
 #include <farbot/fifo.hpp>
 #include <thread>
 
-#include "rtos_rte_cp/RT-Clock/posix_clock.h"
+#include "modules/rtos_rte_cp/RT-Clock/posix_clock.h"
 
 using namespace std::chrono;  // for example brevity
 using namespace std::chrono_literals;
