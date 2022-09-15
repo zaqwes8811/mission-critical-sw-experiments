@@ -101,7 +101,9 @@ public:
         assert(a_);
         auto ptr = a_->alloc(num * sizeof(T), alignof(T));
         if (!ptr) throw std::bad_alloc();
-        return reinterpret_cast<pointer>(ptr);
+
+        // https://en.cppreference.com/w/cpp/utility/launder
+        return std::launder(reinterpret_cast<pointer>(ptr));
     }
 
     void deallocate(pointer p, size_t num) noexcept {}
@@ -218,4 +220,25 @@ TEST(TightAllocTest, ArenaUnderlyingApi) {
     //        //        *a += "1234567812345678";
     //    }
     dump(arena.storage());
+}
+
+TEST(TightAllocTest, CustomeAllocatorForUPtr) {
+    // https://stackoverflow.com/questions/33845132/using-stdunique-ptr-with-allocators
+
+    using namespace arena;
+    auto arena = Arena{256 + 64};
+    dump(arena.storage());
+
+    auto allocator = ArenaAllocator<int>{&arena};
+
+    using A = std::set<int, std::less<>, ArenaAllocator<int>>;
+    auto a = (A *)arena.alloc(sizeof(A), alignof(A));
+    ASSERT_NE(a, nullptr);
+
+    auto raw_ptr = new (a) A(allocator);
+    ASSERT_NE(raw_ptr, nullptr);
+
+    // https://stackoverflow.com/questions/17328454/calling-destructor-with-decltype-and-or-stdremove-reference
+    auto deleter = [](auto ptr) { std::destroy_at(ptr); };
+    auto ptr = std::unique_ptr<A, decltype(deleter)>(raw_ptr, deleter);
 }
