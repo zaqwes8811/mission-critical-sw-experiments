@@ -74,6 +74,7 @@ void *arena_alloc_align(Arena *a, size_t size, size_t align) {
 // Idea: Max alignment is pessimistic
 void *arena_alloc(Arena *a, size_t size) { return arena_alloc_align(a, size, alignof(std::max_align_t)); }
 
+// https://stackoverflow.com/questions/48061522/create-the-simplest-allocator-with-two-template-arguments
 template <class T>
 class ArenaAllocator {
 public:
