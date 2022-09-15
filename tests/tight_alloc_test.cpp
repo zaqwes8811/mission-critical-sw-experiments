@@ -239,6 +239,6 @@ TEST(TightAllocTest, CustomeAllocatorForUPtr) {
     ASSERT_NE(raw_ptr, nullptr);
 
     // https://stackoverflow.com/questions/17328454/calling-destructor-with-decltype-and-or-stdremove-reference
-    auto deleter = [](auto ptr) { std::destroy_at(ptr); };
+    auto deleter = [](auto ptr) { std::destroy_at(std::launder(ptr)); };
     auto ptr = std::unique_ptr<A, decltype(deleter)>(raw_ptr, deleter);
 }
