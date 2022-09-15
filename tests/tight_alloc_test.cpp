@@ -190,10 +190,16 @@ TEST(TightAllocTest, ArenaUnderlyingApi) {
         using A = std::set<int, std::less<>, ArenaAllocator<int>>;
         auto a = (A *)arena.alloc(sizeof(A), alignof(A));
         ASSERT_NE(a, nullptr);
-        new (a) A(allocator);
+
+        auto raw_ptr = new (a) A(allocator);
+        ASSERT_NE(raw_ptr, nullptr);
+
+        auto deleter = [](A *ptr) { ptr->~A(); };
+        auto ptr = std::unique_ptr<A, decltype(deleter)>(raw_ptr, deleter);
+        //        auto ptr = std::unique_ptr<A>(raw_ptr, [](auto ptr) { ptr->~A(); });
+
         a->insert(9);
         a->insert(8);
-        a->~A();
     }
     dump(arena.storage());
 
