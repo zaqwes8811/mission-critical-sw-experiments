@@ -101,14 +101,14 @@ public:
         a_ = rhs.a_;
     }
 
-    T *allocate(size_t num) {
+    inline pointer allocate(size_t num) {
         auto ptr = arena_alloc(a_, num * sizeof(T));
         //        auto ptr = malloc(num * sizeof(T));
         if (!ptr) throw std::bad_alloc();
         return reinterpret_cast<T *>(ptr);
     }
 
-    void deallocate(T *p, size_t num) noexcept {}
+    void deallocate(pointer p, size_t num) noexcept {}
 
     template <typename U>
     struct rebind {
