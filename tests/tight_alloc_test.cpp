@@ -235,7 +235,7 @@ TEST(TightAllocTest, CustomeAllocatorForUPtr) {
     auto a = (A *)arena.alloc(sizeof(A), alignof(A));
     ASSERT_NE(a, nullptr);
 
-    auto raw_ptr = new (a) A(allocator);
+    auto raw_ptr = new (std::launder(a)) A(allocator);
     ASSERT_NE(raw_ptr, nullptr);
 
     // https://stackoverflow.com/questions/17328454/calling-destructor-with-decltype-and-or-stdremove-reference
