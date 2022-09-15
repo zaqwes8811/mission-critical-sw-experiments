@@ -17,8 +17,8 @@
 
 int main() {
 //#ifdef USE_MALLOC
-    auto p = malloc(10);
-    (void)p;
+//    auto p = malloc(10);
+//    (void)p;
 //#endif
     return 0;
 }

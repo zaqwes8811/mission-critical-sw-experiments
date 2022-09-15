@@ -36,11 +36,10 @@
 
 #include "models.hpp"
 
-#include <semaphore>
-
 #include <gtest/gtest.h>
 
 #include <farbot/fifo.hpp>
+#include <semaphore>
 #include <thread>
 
 #include "modules/rtos_rte_cp/RT-Clock/posix_clock.h"

@@ -28,6 +28,9 @@ export PATH="$HOME/.linuxbrew/bin:$PATH"
 CC=gcc-12 CXX=g++-12 cmake ..
 
 cmake -DCMAKE_C_COMPILER=gcc-12 -DCMAKE_CXX_COMPILER=g++-12 ..
+
+cmake -DCMAKE_C_COMPILER=/home/zaqwes/.linuxbrew/bin/gcc-12 \
+-DCMAKE_CXX_COMPILER=/home/zaqwes/.linuxbrew/bin/g++-12 ..
 ```
 
 ```
