@@ -19,12 +19,12 @@ namespace arena {
 
 class Arena {
 public:
-    explicit Arena(size_t buf_len) : underlying_storage_(buf_len, 0xae), buf_len_{buf_len} {
+    explicit Arena(const size_t buf_len) : underlying_storage_(buf_len, 0xae), buf_len_{buf_len} {
         buf = underlying_storage_.data();
     }
 
     // Idea: Max alignment is pessimistic
-    [[nodiscard]] void *alloc(size_t size, size_t align = alignof(std::max_align_t)) {
+    [[nodiscard]] void *alloc(const size_t size, const size_t align = alignof(std::max_align_t)) {
         auto a = this;
         // Align 'curr_offset' forward to the specified alignment
         const uintptr_t curr_ptr = (uintptr_t)a->buf + (uintptr_t)a->curr_offset;
@@ -47,9 +47,9 @@ public:
     [[nodiscard]] const auto &storage() const { return underlying_storage_; }
 
 private:
-    [[nodiscard]] static constexpr bool is_power_of_two(uintptr_t x) { return (x & (x - 1)) == 0; }
+    [[nodiscard]] static constexpr bool is_power_of_two(const uintptr_t x) { return (x & (x - 1)) == 0; }
 
-    [[nodiscard]] static constexpr uintptr_t align_forward(uintptr_t ptr, size_t align) {
+    [[nodiscard]] static constexpr uintptr_t align_forward(const uintptr_t ptr, const size_t align) {
         assert(is_power_of_two(align));
 
         uintptr_t p = ptr;
@@ -98,6 +98,7 @@ public:
     }
 
     inline pointer allocate(size_t num) {
+        assert(a_);
         auto ptr = a_->alloc(num * sizeof(T), alignof(T));
         if (!ptr) throw std::bad_alloc();
         return reinterpret_cast<pointer>(ptr);
