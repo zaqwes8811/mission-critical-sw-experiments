@@ -16,6 +16,9 @@
 // vector control / set? | str-head-1/str-body-1 | str-head-2/str-body-2
 
 // https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/
+auto &o = std::cout;
+// auto& nl =  std::endl;
+
 namespace arena {
 constexpr bool is_power_of_two(uintptr_t x) { return (x & (x - 1)) == 0; }
 
@@ -38,7 +41,7 @@ constexpr uintptr_t align_forward(uintptr_t ptr, size_t align) {
 
 struct Arena {
     Arena(unsigned char *buf_, size_t buf_len_) : buf{buf_}, buf_len{buf_len_} {
-        std::cout << "Arena: start_addr: " << std::hex << static_cast<void*>(buf_) << std::dec << std::endl;
+        o << "Arena: start_addr: " << std::hex << static_cast<void *>(buf_) << std::dec << std::endl;
     }
     unsigned char *buf{};
     size_t buf_len{};
@@ -46,13 +49,13 @@ struct Arena {
 };
 
 void *arena_alloc_align(Arena *a, size_t size, size_t align) {
-    std::cout << "size:" << size << " align:" << align << std::endl;
+    o << "size:" << size << " align:" << align << std::endl;
     // Align 'curr_offset' forward to the specified alignment
     const uintptr_t curr_ptr = (uintptr_t)a->buf + (uintptr_t)a->curr_offset;
 
     const uintptr_t offset = align_forward(curr_ptr, align) - (uintptr_t)a->buf;  // Change to relative offset
-    std::cout << std::hex << align_forward(curr_ptr, align) << " curr:" << curr_ptr << std::dec << " offset:" << offset
-              << std::endl;
+    o << std::hex << align_forward(curr_ptr, align) << " curr:" << curr_ptr << std::dec << " offset:" << offset
+      << std::endl;
 
     // Check to see if the backing memory has space left
     if (offset + size <= a->buf_len) {
@@ -62,7 +65,7 @@ void *arena_alloc_align(Arena *a, size_t size, size_t align) {
         void *ptr = &a->buf[offset];
         memset(ptr, 0, size);
 
-        std::cout << "Arena: alloc_addr: " << std::hex << static_cast<void*>(ptr) << std::dec << std::endl;
+        o << "Arena: alloc_addr: " << std::hex << static_cast<void *>(ptr) << std::dec << std::endl;
         return ptr;
     }
     // Return NULL if the arena is out of memory (or handle differently)
@@ -78,7 +81,7 @@ void *arena_alloc(Arena *a, size_t size) { return arena_alloc_align(a, size, ali
 namespace {
 void dump(const std::vector<unsigned char> &arena_buffer) {
     int ptr = 0;
-    auto &o = std::cout;
+
     o << std::setw(4) << std::setfill('0') << ptr << ": ";
     for (auto e : arena_buffer) {
         o << std::hex << "0x" << std::setw(2) << std::setfill('0') << static_cast<int>(e) << " ";
@@ -98,7 +101,7 @@ void dump(const std::vector<unsigned char> &arena_buffer) {
 }
 }  // namespace
 
-struct TestStr{
+struct TestStr {
     int flag{1};
 };
 
@@ -108,23 +111,23 @@ TEST(TightAllocTest, ArenaUnderlyingApi) {
     auto arena = Arena{arena_buffer.data(), arena_buffer.size()};
     dump(arena_buffer);
 
-    //    {
-    //        using A = std::vector<int>;
-    //        auto a = (A *)arena_alloc(&arena, sizeof(A));
-    //        new (a) A(3, 9);
-    //        //        a->~A();
-    //    }
-    //    dump(arena_buffer);
+    {
+        using A = TestStr;//std::vector<int>;
+        auto a = (A *)arena_alloc(&arena, sizeof(A));
+        new (a) A();//3, 9);
+        //        a->~A();
+    }
+    dump(arena_buffer);
 
     {
-        using A = TestStr;//std::set<int>;
+        using A = TestStr;  // std::set<int>;
         auto a = (A *)arena_alloc(&arena, sizeof(A));
         ASSERT_NE(a, nullptr);
 
-        std::cout << "Test: alloc_addr: " << std::hex << static_cast<void*>(a) << std::dec << std::endl;
+        o << "Test: alloc_addr: " << std::hex << static_cast<void *>(a) << std::dec << std::endl;
 
         new (a) A();
-//        a->insert(1);
+        //        a->insert(1);
         //        a->~A();
     }
     dump(arena_buffer);
