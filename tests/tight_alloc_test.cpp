@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 #include <iomanip>
+#include <unordered_set>
 
 // Vector strings of known max size in single peace of memory
 
@@ -49,13 +50,10 @@ struct Arena {
 };
 
 void *arena_alloc_align(Arena *a, size_t size, size_t align) {
-    o << "size:" << size << " align:" << align << std::endl;
+    o << "Arena: size:" << size << " align:" << align << std::endl;
     // Align 'curr_offset' forward to the specified alignment
     const uintptr_t curr_ptr = (uintptr_t)a->buf + (uintptr_t)a->curr_offset;
-
     const uintptr_t offset = align_forward(curr_ptr, align) - (uintptr_t)a->buf;  // Change to relative offset
-    o << std::hex << align_forward(curr_ptr, align) << " curr:" << curr_ptr << std::dec << " offset:" << offset
-      << std::endl;
 
     // Check to see if the backing memory has space left
     if (offset + size <= a->buf_len) {
@@ -76,6 +74,60 @@ void *arena_alloc_align(Arena *a, size_t size, size_t align) {
 // Idea: Max alignment is pessimistic
 void *arena_alloc(Arena *a, size_t size) { return arena_alloc_align(a, size, alignof(std::max_align_t)); }
 
+template <class T>
+class ArenaAllocator {
+public:
+    typedef T value_type;
+    typedef value_type *pointer;
+    typedef const value_type *const_pointer;
+    typedef value_type &reference;
+    typedef const value_type &const_reference;
+    typedef std::size_t size_type;
+    typedef std::ptrdiff_t difference_type;
+
+    //    using value_type = T;
+    using propagate_on_container_move_assignment = std::true_type;
+    using is_always_equal = std::true_type;
+
+    ArenaAllocator() = default;
+
+    explicit ArenaAllocator(Arena *a) noexcept : a_{a} {}
+
+    ArenaAllocator(const ArenaAllocator &) = default;
+
+    //    template <typename U>
+    //    //    explicit
+    //    ArenaAllocator(const ArenaAllocator<U> &rhs) noexcept {
+    //        *this = rhs;
+    //    }
+
+    T *allocate(size_t num) {
+        auto ptr = arena_alloc(a_, num * sizeof(T));
+        //        auto ptr = malloc(num * sizeof(T));
+        if (!ptr) throw std::bad_alloc();
+        return reinterpret_cast<T *>(ptr);
+    }
+
+    void deallocate(T *p, size_t num) noexcept {}
+
+    template <typename U>
+    struct rebind {
+        typedef ArenaAllocator<U> other;
+    };
+
+private:
+    Arena *a_ = nullptr;
+};
+
+template <class T1, class T2>
+bool operator==(const ArenaAllocator<T1> &, const ArenaAllocator<T2> &) noexcept {
+    return true;
+}
+
+template <class T1, class T2>
+bool operator!=(const ArenaAllocator<T1> &, const ArenaAllocator<T2> &) noexcept {
+    return false;
+}
 }  // namespace arena
 
 namespace {
@@ -105,30 +157,60 @@ struct TestStr {
     int flag{1};
 };
 
+template <typename T>
+using ArenaVector = std::vector<T, arena::ArenaAllocator<T>>;
+
+using String = std::basic_string<char, std::char_traits<char>, arena::ArenaAllocator<char>>;
+// using String = std::basic_string<char, std::char_traits<char>, std::allocator<char>>;
+
 TEST(TightAllocTest, ArenaUnderlyingApi) {
     using namespace arena;
-    auto arena_buffer = std::vector<unsigned char>(128, 0);
+    auto arena_buffer = std::vector<unsigned char>(256, 0);
     auto arena = Arena{arena_buffer.data(), arena_buffer.size()};
     dump(arena_buffer);
 
+    auto allocator = ArenaAllocator<int>{&arena};
+    //    {
+    //        auto v = ArenaVector<int>(allocator);
+    //        v.push_back(16);
+    //    }
+    //    dump(arena_buffer);
+
     {
-        using A = TestStr;//std::vector<int>;
-        auto a = (A *)arena_alloc(&arena, sizeof(A));
-        new (a) A();//3, 9);
-        //        a->~A();
+        using A = ArenaVector<int>;
+        //        auto a = (A *)arena_alloc(&arena, sizeof(A));
+        //        new (a) A(allocator);
+        //        a->reserve(5);
+        //        a->push_back(9);
     }
     dump(arena_buffer);
 
     {
-        using A = TestStr;  // std::set<int>;
+        // TODO() Need rebind for allocator or something
+        //        using A = std::unordered_set<int, std::hash<int>, std::equal_to<>, ArenaAllocator<int>>;
+        using A = std::set<int, std::less<>, ArenaAllocator<int>>;  // Need extra work
+        //        auto a = (A *)arena_alloc(&arena, sizeof(A));
+        //        ASSERT_NE(a, nullptr);
+
+        //        new (a) A(std::less<>(), allocator);
+        //        new (a) A(allocator);
+        //        a->insert(1);
+    }
+    dump(arena_buffer);
+
+    // String
+    // https://stackoverflow.com/questions/37502974/stdstring-with-a-custom-allocator
+    {
+        auto allocator = ArenaAllocator<char>{&arena};
+
+        using A = String;
         auto a = (A *)arena_alloc(&arena, sizeof(A));
         ASSERT_NE(a, nullptr);
-
-        o << "Test: alloc_addr: " << std::hex << static_cast<void *>(a) << std::dec << std::endl;
-
-        new (a) A();
-        //        a->insert(1);
-        //        a->~A();
+        dump(arena_buffer);
+        new (a) A(allocator);
+        a->reserve(32);
+        *a += "1234";
+        //        *a += "1234567812345678";
     }
     dump(arena_buffer);
 }
