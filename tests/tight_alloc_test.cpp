@@ -95,11 +95,10 @@ public:
 
     ArenaAllocator(const ArenaAllocator &) = default;
 
-    //    template <typename U>
-    //    //    explicit
-    //    ArenaAllocator(const ArenaAllocator<U> &rhs) noexcept {
-    //        *this = rhs;
-    //    }
+    template <typename U>
+    explicit ArenaAllocator(const ArenaAllocator<U> &rhs) noexcept {
+        a_ = rhs.a_;
+    }
 
     T *allocate(size_t num) {
         auto ptr = arena_alloc(a_, num * sizeof(T));
@@ -115,7 +114,7 @@ public:
         typedef ArenaAllocator<U> other;
     };
 
-private:
+    // private:
     Arena *a_ = nullptr;
 };
 
@@ -189,28 +188,27 @@ TEST(TightAllocTest, ArenaUnderlyingApi) {
         // TODO() Need rebind for allocator or something
         //        using A = std::unordered_set<int, std::hash<int>, std::equal_to<>, ArenaAllocator<int>>;
         using A = std::set<int, std::less<>, ArenaAllocator<int>>;  // Need extra work
-        //        auto a = (A *)arena_alloc(&arena, sizeof(A));
-        //        ASSERT_NE(a, nullptr);
-
-        //        new (a) A(std::less<>(), allocator);
-        //        new (a) A(allocator);
-        //        a->insert(1);
+        auto a = (A *)arena_alloc(&arena, sizeof(A));
+        ASSERT_NE(a, nullptr);
+        new (a) A(allocator);
+        a->insert(9);
+        a->insert(8);
     }
     dump(arena_buffer);
 
     // String
     // https://stackoverflow.com/questions/37502974/stdstring-with-a-custom-allocator
-    {
-        auto allocator = ArenaAllocator<char>{&arena};
-
-        using A = String;
-        auto a = (A *)arena_alloc(&arena, sizeof(A));
-        ASSERT_NE(a, nullptr);
-        dump(arena_buffer);
-        new (a) A(allocator);
-        a->reserve(32);
-        *a += "1234";
-        //        *a += "1234567812345678";
-    }
+    //    {
+    //        auto allocator = ArenaAllocator<char>{&arena};
+    //
+    //        using A = String;
+    //        auto a = (A *)arena_alloc(&arena, sizeof(A));
+    //        ASSERT_NE(a, nullptr);
+    //        dump(arena_buffer);
+    //        new (a) A(allocator);
+    //        a->reserve(32);
+    //        *a += "1234";
+    //        //        *a += "1234567812345678";
+    //    }
     dump(arena_buffer);
 }
