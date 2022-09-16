@@ -146,15 +146,27 @@ TEST(TightAllocTest, SetOfString) {
     //    //    auto iter = ptr->emplace_hint(ptr->begin());
     //    //    ASSERT_TRUE(inserted);
 
-    auto elem0 =
-        ptr->emplace(std::piecewise_construct, std::forward_as_tuple(12), std::forward_as_tuple(AllocatorStr{&arena}));
-    elem0.first->second.reserve(19);
+    //    auto elem0 =        ptr->emplace(std::piecewise_construct, std::forward_as_tuple(12),
+    //    std::forward_as_tuple(AllocatorStr{&arena}));
+
+    auto elem0 = ptr->emplace_hint(ptr->end(), std::piecewise_construct, std::forward_as_tuple(12),
+                                   std::forward_as_tuple(AllocatorStr{&arena}));
+
+    static const auto sso_size = ArenaString().capacity();
+    if (sizeof(ArenaString) > 90) {
+        // TODO() Is Short will be?
+        // https://stackoverflow.com/questions/21694302/what-are-the-mechanics-of-short-string-optimization-in-libc
+        elem0->second.reserve(19);
+    }
+
+    o << ArenaString().capacity() << std::endl;
 
     auto elem1 =
         ptr->emplace(std::piecewise_construct, std::forward_as_tuple(12), std::forward_as_tuple(AllocatorStr{&arena}));
 
     for (int i = 0; i < 18; ++i) {
-        elem0.first->second.push_back('6');
+        //        elem0.first->second.push_back('6');
+        elem0->second.push_back('6');
     }
 
     dump(arena.storage());
