@@ -52,9 +52,7 @@ struct TestStr {
 
 template <typename T>
 using ArenaVector = std::vector<T, ArenaAllocator<T>>;
-
 using String = std::basic_string<char, std::char_traits<char>, ArenaAllocator<char>>;
-// using String = std::basic_string<char, std::char_traits<char>, std::allocator<char>>;
 
 TEST(TightAllocTest, ArenaUnderlyingApi) {
     auto arena = VectorBasedArena{256 + 64};
@@ -126,4 +124,35 @@ TEST(TightAllocTest, CustomeAllocatorForUPtr) {
     // https://stackoverflow.com/questions/17328454/calling-destructor-with-decltype-and-or-stdremove-reference
 
     auto ptr = std::unique_ptr<A, decltype(global_arena_deleter)>(raw_ptr, global_arena_deleter);
+}
+
+TEST(TightAllocTest, SetOfString) {
+    auto arena = VectorBasedArena{256 + 64};
+    dump(arena.storage());
+
+    using Allocator = ArenaAllocator<std::pair<int, String>>;
+
+    // It can't be set. We need int to String
+    using A = std::map<int, String, Allocator>;
+    auto a = (A *)arena.alloc(sizeof(A), alignof(A));
+    ASSERT_NE(a, nullptr);
+
+    auto allocator = Allocator{&arena};
+
+    auto raw_ptr = new (a) A(allocator);
+    ASSERT_NE(raw_ptr, nullptr);
+
+    auto ptr = std::unique_ptr<A, decltype(global_arena_deleter)>(raw_ptr, global_arena_deleter);
+
+    dump(arena.storage());
+
+    //    auto [iter, inserted] = ptr->emplace_hint(ptr->begin());
+    //    auto iter = ptr->emplace_hint(ptr->begin());
+    //    ASSERT_TRUE(inserted);
+
+    //    ptr->emplace(std::piecewise_construct, std::forward_as_tuple(12), std::forward_as_tuple(""));
+    ptr->insert({1, ""});
+
+    //    std::cout << iter->size() << std::endl;
+    dump(arena.storage());
 }
