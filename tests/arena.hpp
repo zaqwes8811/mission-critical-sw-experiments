@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <iostream>
 #include <vector>
 
 class VectorBasedArena {
@@ -14,6 +15,7 @@ public:
 
     // Idea: Max alignment is pessimistic
     [[nodiscard]] void *alloc(const size_t size, const size_t align = alignof(std::max_align_t)) {
+        std::cout << "VectorBasedArena: alloc req: " << size << std::endl;
         auto a = this;
         // Align 'curr_offset' forward to the specified alignment
         const uintptr_t curr_ptr = (uintptr_t)a->buf + (uintptr_t)a->curr_offset;
@@ -116,3 +118,10 @@ bool operator!=(const ArenaAllocator<T1> &, const ArenaAllocator<T2> &) noexcept
 }
 
 static auto global_arena_deleter = [](auto ptr) { std::destroy_at(std::launder(ptr)); };
+
+using AllocatorStr = ArenaAllocator<char>;
+using ArenaString = std::basic_string<char, std::char_traits<char>, AllocatorStr>;
+using AllocatorIntStrPair = ArenaAllocator<std::pair<const int, ArenaString>>;
+
+template <typename T>
+using ArenaVector = std::vector<T, ArenaAllocator<T>>;

@@ -50,10 +50,6 @@ struct TestStr {
     int flag{1};
 };
 
-template <typename T>
-using ArenaVector = std::vector<T, ArenaAllocator<T>>;
-using String = std::basic_string<char, std::char_traits<char>, ArenaAllocator<char>>;
-
 TEST(TightAllocTest, ArenaUnderlyingApi) {
     auto arena = VectorBasedArena{256 + 64};
     dump(arena.storage());
@@ -127,17 +123,17 @@ TEST(TightAllocTest, CustomeAllocatorForUPtr) {
 }
 
 TEST(TightAllocTest, SetOfString) {
+    // It can't be set. We need int to String
+
     auto arena = VectorBasedArena{256 + 64};
     dump(arena.storage());
 
-    using Allocator = ArenaAllocator<std::pair<int, String>>;
-
-    // It can't be set. We need int to String
-    using A = std::map<int, String, Allocator>;
+    // Trouble - Chain of allocations - how to give string allocator
+    using A = std::map<int, ArenaString, std::less<>, AllocatorIntStrPair>;
     auto a = (A *)arena.alloc(sizeof(A), alignof(A));
     ASSERT_NE(a, nullptr);
 
-    auto allocator = Allocator{&arena};
+    auto allocator = AllocatorIntStrPair{&arena};
 
     auto raw_ptr = new (a) A(allocator);
     ASSERT_NE(raw_ptr, nullptr);
@@ -146,13 +142,20 @@ TEST(TightAllocTest, SetOfString) {
 
     dump(arena.storage());
 
-    //    auto [iter, inserted] = ptr->emplace_hint(ptr->begin());
-    //    auto iter = ptr->emplace_hint(ptr->begin());
-    //    ASSERT_TRUE(inserted);
+    //    //    auto [iter, inserted] = ptr->emplace_hint(ptr->begin());
+    //    //    auto iter = ptr->emplace_hint(ptr->begin());
+    //    //    ASSERT_TRUE(inserted);
 
-    //    ptr->emplace(std::piecewise_construct, std::forward_as_tuple(12), std::forward_as_tuple(""));
-    ptr->insert({1, ""});
+    auto elem0 =
+        ptr->emplace(std::piecewise_construct, std::forward_as_tuple(12), std::forward_as_tuple(AllocatorStr{&arena}));
+    elem0.first->second.reserve(19);
 
-    //    std::cout << iter->size() << std::endl;
+    auto elem1 =
+        ptr->emplace(std::piecewise_construct, std::forward_as_tuple(12), std::forward_as_tuple(AllocatorStr{&arena}));
+
+    for (int i = 0; i < 18; ++i) {
+        elem0.first->second.push_back('6');
+    }
+
     dump(arena.storage());
 }
