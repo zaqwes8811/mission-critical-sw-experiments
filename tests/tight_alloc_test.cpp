@@ -85,9 +85,7 @@ TEST(TightAllocTest, ArenaUnderlyingApi) {
         auto raw_ptr = new (a) A(allocator);
         ASSERT_NE(raw_ptr, nullptr);
 
-        auto deleter = [](A *ptr) { ptr->~A(); };
-        auto ptr = std::unique_ptr<A, decltype(deleter)>(raw_ptr, deleter);
-        //        auto ptr = std::unique_ptr<A>(raw_ptr, [](auto ptr) { ptr->~A(); });
+        auto ptr = std::unique_ptr<A, decltype(global_arena_deleter)>(raw_ptr, global_arena_deleter);
 
         a->insert(9);
         a->insert(8);
@@ -127,5 +125,5 @@ TEST(TightAllocTest, CustomeAllocatorForUPtr) {
 
     // https://stackoverflow.com/questions/17328454/calling-destructor-with-decltype-and-or-stdremove-reference
 
-    auto ptr = std::unique_ptr<A, decltype(deleter)>(raw_ptr, deleter);
+    auto ptr = std::unique_ptr<A, decltype(global_arena_deleter)>(raw_ptr, global_arena_deleter);
 }

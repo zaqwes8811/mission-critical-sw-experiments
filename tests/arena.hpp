@@ -115,4 +115,4 @@ bool operator!=(const ArenaAllocator<T1> &, const ArenaAllocator<T2> &) noexcept
     return false;
 }
 
-static auto deleter = [](auto ptr) { std::destroy_at(std::launder(ptr)); };
+static auto global_arena_deleter = [](auto ptr) { std::destroy_at(std::launder(ptr)); };
