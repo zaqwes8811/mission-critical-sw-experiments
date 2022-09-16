@@ -16,9 +16,9 @@
 // https://stackoverflow.com/questions/262439/create-a-wrapper-function-for-malloc-and-free-in-c
 
 int main() {
-//#ifdef USE_MALLOC
-//    auto p = malloc(10);
-//    (void)p;
-//#endif
+    //#ifdef USE_MALLOC
+    //    auto p = malloc(10);
+    //    (void)p;
+    //#endif
     return 0;
 }

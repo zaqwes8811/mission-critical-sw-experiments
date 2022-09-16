@@ -6,9 +6,9 @@
 
 #include <vector>
 
-class Arena {
+class VectorBasedArena {
 public:
-    explicit Arena(const size_t buf_len) : buf_len_{buf_len}, underlying_storage_(buf_len, 0xae) {
+    explicit VectorBasedArena(const size_t buf_len) : buf_len_{buf_len}, underlying_storage_(buf_len, 0xae) {
         buf = underlying_storage_.data();
     }
 
@@ -77,7 +77,7 @@ public:
 
     ArenaAllocator() = default;
 
-    explicit ArenaAllocator(Arena *a) noexcept : a_{a} {}
+    explicit ArenaAllocator(VectorBasedArena *a) noexcept : a_{a} {}
 
     ArenaAllocator(const ArenaAllocator &) = default;
 
@@ -102,7 +102,7 @@ public:
         typedef ArenaAllocator<U> other;
     };
 
-    Arena *a_ = nullptr;
+    VectorBasedArena *a_ = nullptr;
 };
 
 template <class T1, class T2>
@@ -114,3 +114,5 @@ template <class T1, class T2>
 bool operator!=(const ArenaAllocator<T1> &, const ArenaAllocator<T2> &) noexcept {
     return false;
 }
+
+static auto deleter = [](auto ptr) { std::destroy_at(std::launder(ptr)); };

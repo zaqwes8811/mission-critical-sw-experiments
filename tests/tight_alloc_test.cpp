@@ -4,7 +4,7 @@
 
 // Vector strings of known max size in single peace of memory
 
-// Arena
+// VectorBasedArena
 //   https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/
 // std::pmr
 // vector control / set? | str-head-1/str-body-1 | str-head-2/str-body-2
@@ -57,7 +57,7 @@ using String = std::basic_string<char, std::char_traits<char>, ArenaAllocator<ch
 // using String = std::basic_string<char, std::char_traits<char>, std::allocator<char>>;
 
 TEST(TightAllocTest, ArenaUnderlyingApi) {
-    auto arena = Arena{256 + 64};
+    auto arena = VectorBasedArena{256 + 64};
     dump(arena.storage());
 
     auto allocator = ArenaAllocator<int>{&arena};
@@ -113,7 +113,7 @@ TEST(TightAllocTest, ArenaUnderlyingApi) {
 
 TEST(TightAllocTest, CustomeAllocatorForUPtr) {
     // https://stackoverflow.com/questions/33845132/using-stdunique-ptr-with-allocators
-    auto arena = Arena{256 + 64};
+    auto arena = VectorBasedArena{256 + 64};
     dump(arena.storage());
 
     auto allocator = ArenaAllocator<int>{&arena};
@@ -126,6 +126,6 @@ TEST(TightAllocTest, CustomeAllocatorForUPtr) {
     ASSERT_NE(raw_ptr, nullptr);
 
     // https://stackoverflow.com/questions/17328454/calling-destructor-with-decltype-and-or-stdremove-reference
-    auto deleter = [](auto ptr) { std::destroy_at(std::launder(ptr)); };
+
     auto ptr = std::unique_ptr<A, decltype(deleter)>(raw_ptr, deleter);
 }

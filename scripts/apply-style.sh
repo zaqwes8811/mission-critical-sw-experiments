@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-DIRS=("tests/")
+DIRS=("tests/" "apps/")
 
 for DIR in "${DIRS[@]}"
 do
