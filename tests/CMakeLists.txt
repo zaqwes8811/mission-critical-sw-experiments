@@ -1,6 +1,8 @@
 
 # TODO() Add UBSan + Debug build
 
+set(CMAKE_CXX_FLAGS "-Wall ${CMAKE_CXX_FLAGS}")
+
 add_executable(rt_acs
         ${CMAKE_SOURCE_DIR}/tests/all_tests.cc
         ${CMAKE_SOURCE_DIR}/tests/iceoyx_hoofs_test.cpp
