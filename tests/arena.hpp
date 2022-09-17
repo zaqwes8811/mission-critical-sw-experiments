@@ -117,7 +117,13 @@ bool operator!=(const ArenaAllocator<T1> &, const ArenaAllocator<T2> &) noexcept
     return false;
 }
 
-static auto global_arena_deleter = [](auto ptr) { std::destroy_at(std::launder(ptr)); };
+static auto global_arena_deleter = [](auto ptr) {
+    // TODO() Will be destructor called?
+    //   std::is_trivially_destructible - how to escape destruction
+    //
+    // https://stackoverflow.com/questions/41897418/significance-of-trivial-destruction
+    std::destroy_at(std::launder(ptr));
+};
 
 using AllocatorStr = ArenaAllocator<char>;
 using ArenaString = std::basic_string<char, std::char_traits<char>, AllocatorStr>;
