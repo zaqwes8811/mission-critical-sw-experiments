@@ -8,6 +8,8 @@
 #include <vector>
 #include <memory>
 #include <cstring>
+#include <cassert>
+#include <cstddef>
 
 class VectorBasedArena {
 public:
