@@ -19,7 +19,7 @@ public:
 
     // Idea: Max alignment is pessimistic
     [[nodiscard]] void *alloc(const size_t size, const size_t align = alignof(std::max_align_t)) {
-        std::cout << "VectorBasedArena: alloc req: " << size << std::endl;
+//        std::cout << "VectorBasedArena: alloc req: " << size << std::endl;
         auto a = this;
         // Align 'curr_offset' forward to the specified alignment
         const uintptr_t curr_ptr = (uintptr_t)a->buf + (uintptr_t)a->curr_offset;
