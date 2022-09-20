@@ -29,9 +29,9 @@
 # Need build libc++ without exceptions
 set(CMAKE_CXX_FLAGS "-fno-rtti -fno-exceptions -Wall -Werror -Wl,--wrap=malloc ${CMAKE_CXX_FLAGS}")
 add_library(safe_rt SHARED
-        safe_eval.cpp)
+        safe_eval_test.cpp)
 
-add_executable(app test_nomalloc.cpp)
+add_executable(app nomalloc_test.cpp)
 
 # Minimiz heap alloc
 # https://www.youtube.com/watch?v=ZXTI5iWHhrg&ab_channel=cpponsea

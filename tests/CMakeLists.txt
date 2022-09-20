@@ -10,6 +10,7 @@ add_executable(rt_acs
         ${CMAKE_SOURCE_DIR}/tests/rt_parts_test.cpp
         numa_aware_allocator_test.cpp
         tight_alloc_test.cpp
+        custome_primitives_test.cpp
         ${CMAKE_SOURCE_DIR}/modules/rtos_rte_cp/RT-Clock/posix_clock.c
         )
 
