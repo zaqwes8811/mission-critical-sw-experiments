@@ -8,6 +8,7 @@
 
 #include <array>
 #include <memory_resource>
+#include <span>
 
 #include "3rdparty/SG14/SG14/inplace_function.h"
 #include "3rdparty/bounded-integer/include/containers/static_vector.hpp"
@@ -33,3 +34,39 @@ static_assert(std::is_nothrow_move_assignable_v<decltype(no_op)>, "A");
 
 // Static vector
 containers::static_vector<int, 128u> sv;
+
+// https://www.modernescpp.com/index.php/c-17-avoid-copying-with-std-string-view
+
+// Idea:
+//   - heapless
+//   - noexcept
+template <size_t Capacity=16>
+class fixed_capacity_string {
+public:
+    // TODO:
+    // Span
+    // https://stackoverflow.com/questions/70598724/transforming-a-string-view-in-place
+    explicit fixed_capacity_string(std::string_view s) {
+        if (s.size() > Capacity) {
+            return;
+        }
+
+        s_ = std::string_view(buffer_.data(), s.size());
+        v_ = std::span(buffer_.data(), s.size());
+//        std::copy(s.begin(), s.end(), s_.begin());  // string_view is read_only
+        std::copy(s.begin(), s.end(), v_.begin());
+
+        std::cout << s_ << std::endl;
+    }
+
+private:
+    bool constructed_{false};
+    std::array<std::string_view::value_type, Capacity> buffer_;
+    std::string_view s_;
+    std::span<std::string_view::value_type> v_;
+};
+
+TEST(RtModules, FixedCapacityString) {
+    std::string orig_str{"view"};
+    fixed_capacity_string s{orig_str};
+}

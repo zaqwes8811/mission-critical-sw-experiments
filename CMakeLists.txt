@@ -83,4 +83,5 @@ include_directories(${CMAKE_SOURCE_DIR}/3rdparty/bounded-integer/dependencies/nu
 include_directories(${CMAKE_SOURCE_DIR}/3rdparty/bounded-integer/dependencies/operators/include/)
 
 add_subdirectory(apps/safe)
+add_subdirectory(apps/secure)
 add_subdirectory(tests)
