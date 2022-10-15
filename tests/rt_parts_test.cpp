@@ -13,8 +13,13 @@
 #include "3rdparty/SG14/SG14/inplace_function.h"
 #include "3rdparty/bounded-integer/include/containers/static_vector.hpp"
 
+//=======================================================================================
+//=======================================================================================
+//=======================================================================================
+
 std::array<float, 1024> stack_mem;
 
+// Can throw?
 void process() {
     std::pmr::monotonic_buffer_resource monotonic_buffer(stack_mem.data(), stack_mem.size(),
                                                          std::pmr::null_memory_resource());
@@ -24,6 +29,9 @@ void process() {
     std::pmr::vector<float> my_vector(16, 0, allocator);
 }
 
+//=======================================================================================
+//=======================================================================================
+//=======================================================================================
 // inplace function
 
 std::array<int, 64> a;
@@ -32,8 +40,16 @@ stdext::inplace_function<void(), 1024> no_op{[a = a] {}};
 
 static_assert(std::is_nothrow_move_assignable_v<decltype(no_op)>, "A");
 
+//=======================================================================================
+//=======================================================================================
+//=======================================================================================
+
 // Static vector
 containers::static_vector<int, 128u> sv;
+
+//=======================================================================================
+//=======================================================================================
+//=======================================================================================
 
 // https://www.modernescpp.com/index.php/c-17-avoid-copying-with-std-string-view
 
@@ -94,3 +110,6 @@ TEST(RtModules, FixedCapacityString) {
     EXPECT_EQ(s.constructed(), true);
     EXPECT_TRUE(s.append("hffffo"));
 }
+
+// Best practice:
+//   https://www.learncpp.com/cpp-tutorial/stdstring_view-part-2/
