@@ -40,9 +40,10 @@ containers::static_vector<int, 128u> sv;
 // Idea:
 //   - heapless
 //   - noexcept
-template <size_t Capacity=16>
+template <size_t Capacity = 16>
 class fixed_capacity_string {
 public:
+    using value_type = std::string_view::value_type;
     // TODO:
     // Span
     // https://stackoverflow.com/questions/70598724/transforming-a-string-view-in-place
@@ -52,21 +53,39 @@ public:
         }
 
         s_ = std::string_view(buffer_.data(), s.size());
-        v_ = std::span(buffer_.data(), s.size());
-//        std::copy(s.begin(), s.end(), s_.begin());  // string_view is read_only
+        auto v_ = std::span(buffer_.data(), s.size());
+        //        s_ = v_;
+        //        std::copy(s.begin(), s.end(), s_.begin());  // string_view is read_only
         std::copy(s.begin(), s.end(), v_.begin());
 
+        constructed_ = true;
+    }
+
+    [[nodiscard]] bool constructed() const noexcept { return constructed_; }
+
+    [[nodiscard]] bool append(std::string_view s) noexcept {
+        const auto new_size = s.size() + s_.size();
+        if (new_size > Capacity) {
+            return false;
+        }
+
+        auto v_ = std::span(buffer_.data() + s_.size(), s.size());
+        std::copy(s.begin(), s.end(), v_.begin());
+        s_ = std::string_view(buffer_.data(), new_size);
         std::cout << s_ << std::endl;
+
+        return true;
     }
 
 private:
     bool constructed_{false};
-    std::array<std::string_view::value_type, Capacity> buffer_;
+    std::array<value_type, Capacity> buffer_;
     std::string_view s_;
-    std::span<std::string_view::value_type> v_;
 };
 
 TEST(RtModules, FixedCapacityString) {
     std::string orig_str{"view"};
     fixed_capacity_string s{orig_str};
+    EXPECT_EQ(s.constructed(), true);
+    EXPECT_TRUE(s.append("hffffo"));
 }
