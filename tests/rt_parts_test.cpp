@@ -64,6 +64,11 @@ public:
     [[nodiscard]] bool constructed() const noexcept { return constructed_; }
 
     [[nodiscard]] bool append(std::string_view s) noexcept {
+        // Cons: Extra branch
+        if (s.empty()) {
+            return true;  // Why should be false?
+        }
+
         const auto new_size = s.size() + s_.size();
         if (new_size > Capacity) {
             return false;
