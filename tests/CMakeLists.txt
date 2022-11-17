@@ -29,6 +29,7 @@ target_include_directories(tests-ut PUBLIC ${absl_status_inc})
 
 
 get_target_property(absl_status_libs absl_status LINK_LIBRARIES)
-target_link_libraries(tests-ut ${absl_status_libs} )
 get_target_property(absl_statusor_libs absl_statusor LINK_LIBRARIES)
-target_link_libraries(tests-ut ${absl_statusor_libs} )
+target_link_libraries(tests-ut ${absl_status_libs} ${absl_statusor_libs}
+        absl::statusor  # Had to add it manually
+        )

@@ -35,4 +35,12 @@ cmake -DCMAKE_C_COMPILER=/home/zaqwes/.linuxbrew/bin/gcc-12 \
 
 ```
 git submodule update --init --recursive
+
+
+
+
+-DCMAKE_C_COMPILER=/home/zaqwes/.linuxbrew/bin/gcc-12
+-DCMAKE_CXX_COMPILER=/home/zaqwes/.linuxbrew/bin/g++-12
+-DCMAKE_POSITION_INDEPENDENT_CODE=TRUE
+-DABSL_PROPAGATE_CXX_STD=TRUE
 ```
