@@ -59,7 +59,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # It's big
 #add_subdirectory(3rdparty/bounded-integer)
 
-find_package(GTest REQUIRED)
+
 
 include_directories(${GTEST_INCLUDE_DIRS})
 
@@ -74,6 +74,8 @@ include_directories(${benchmark_INCLUDE_DIRS})
 link_libraries(${benchmark_LIBRARIES} pthread)
 
 include_directories(${CMAKE_SOURCE_DIR}/3rdparty/farbot/include)
+
+add_subdirectory(3rdparty/abseil-cpp)
 
 find_package(GTest REQUIRED)
 find_package(iceoryx_hoofs REQUIRED)
