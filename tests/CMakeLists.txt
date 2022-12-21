@@ -4,7 +4,7 @@
 find_package(GTest REQUIRED)
 #find_package(absl REQUIRED)
 
-set(CMAKE_CXX_FLAGS "-Wall ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-Wall -fconcepts-diagnostics-depth=4  ${CMAKE_CXX_FLAGS}")
 
 add_executable(tests-ut
         ${CMAKE_SOURCE_DIR}/tests/all_tests.cc
