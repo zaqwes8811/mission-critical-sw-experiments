@@ -16,6 +16,7 @@ add_executable(tests-ut
         custome_primitives_test.cpp
         abseil_error_handling_test.cpp
         ${CMAKE_SOURCE_DIR}/modules/rtos_rte_cp/RT-Clock/posix_clock.c
+        compile_time_graph.cpp
         )
 
 
