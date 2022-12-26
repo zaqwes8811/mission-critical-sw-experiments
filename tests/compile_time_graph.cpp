@@ -88,3 +88,46 @@ void test() {
     //    //    tree<int, tree<int>> t2(t);
     //    return t.child<0>().root;
 }
+
+// https://www.youtube.com/watch?v=tF-Nz4aRWAM&t=967s&ab_channel=CppCon
+
+#include <future>
+#include <thread>
+
+std::future<int> async_algo() {
+    std::promise<int> p;
+    auto f = p.get_future();
+
+    std::thread t{[p = std::move(p)]() mutable {
+        int answer = 0;
+        p.set_value(answer);
+    }};
+    t.detach();
+    return f;
+}
+
+
+template <typename Cont>
+std::future<int> async_algo1(Cont c) {
+    std::promise<int> p;
+    auto f = p.get_future();
+
+    std::thread t{[p = std::move(p), c]() mutable {
+        int answer = 0;
+        p.set_value(c(answer));
+    }};
+    t.detach();
+    return f;
+}
+
+void test_future() {
+    //    auto f = async_algo();
+    //    f.than()
+    //    f.wait();
+
+    auto f = async_algo1([](int i) {
+        return i;
+    });
+
+    f.get();
+}
