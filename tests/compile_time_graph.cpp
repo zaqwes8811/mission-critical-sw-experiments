@@ -1,12 +1,12 @@
 // Based on:
 //   C++20 Concepts: A Day in the Life - Saar Raz - CppCon 2019
 
+#include <gtest/gtest.h>
+
 #include <concepts>
 #include <cstdio>
 #include <memory>
 #include <tuple>
-
-#include <gtest/gtest.h>
 
 template <typename T>
 concept Node = std::is_object_v<T>;
@@ -108,7 +108,6 @@ std::future<int> async_algo() {
     return f;
 }
 
-
 template <typename Cont>
 std::future<int> async_algo1(Cont c) {
     std::promise<int> p;
@@ -137,17 +136,16 @@ TEST(CompileTimeGraphTest, Best) {
     //    f.than()
     //    f.wait();
 
-//    auto f = async_algo1([](int i) {
-//        return i;
-//    });
-//
-//    f.get();
+    //    auto f = async_algo1([](int i) {
+    //        return i;
+    //    });
+    //
+    //    f.get();
 
     // separate compose and launch
 
     auto f = async_algo2();
-//    auto f2 = than(f, [](int i) {
-//
-//    });
-
+    //    auto f2 = than(f, [](int i) {
+    //
+    //    });
 }

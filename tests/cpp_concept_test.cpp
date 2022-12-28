@@ -49,7 +49,7 @@ private:
 };
 
 // !
-//std::convertible_to
+// std::convertible_to
 
 template <typename T>
 concept Any = true;
@@ -64,23 +64,21 @@ template <typename T>
 concept Number2 = Integer<T> || Float<T>;
 
 template <typename T>
-concept Addable = requires (T a, T b) {
-    a+b;
+concept Addable = requires(T a, T b) {
+    a + b;
 };
 
-auto add1(Addable auto x, Addable auto y) {
-    return x+y;
-}
+auto add1(Addable auto x, Addable auto y) { return x + y; }
 
 template <typename T>
 concept HasSquare = requires(T t) {
-//    t.square();
-//    t.sqrt();  // or? and?
+    //    t.square();
+    //    t.sqrt();  // or? and?
 
-    {t.square()} -> std::convertible_to<int>;
+    { t.square() } -> std::convertible_to<int>;
 };
 
-//void printSquare(HasSquare auto number ) {}
+// void printSquare(HasSquare auto number ) {}
 
 template <typename T>
 concept HasPower = requires(T t, int exponent) {
@@ -88,22 +86,19 @@ concept HasPower = requires(T t, int exponent) {
 };
 
 template <typename Base, typename Exponent>
-concept HasPower1 = std::integral<Exponent> && requires(Base base, Exponent exponent) {
+concept HasPower1 = std::integral<Exponent>&& requires(Base base, Exponent exponent) {
     base.power(exponent);
 };
 
 template <typename Exponent>  // exponent only
-void printPower(HasPower1<Exponent> auto number, Exponent exponent) {
-
-}
+void printPower(HasPower1<Exponent> auto number, Exponent exponent) {}
 
 // PII
 class IntWithoutSquare {
 public:
     IntWithoutSquare(int num) : m_num{num} {}
-    int square() {
-        return m_num * m_num;
-    }
+    int square() { return m_num * m_num; }
+
 private:
     int m_num;
 };
@@ -111,25 +106,23 @@ private:
 class IntWithSquare {
 public:
     IntWithSquare(int num) : m_num(num) {}
-    int square() {
-        return m_num * m_num;
-    }
+    int square() { return m_num * m_num; }
+
 private:
     int m_num;
 };
 
-template<typename T>
+template <typename T>
 using Reference = T&;
 
-template<typename T>
-requires (!std::same_as<T, std::vector<int>>)
-struct Other;
+template <typename T>
+requires(!std::same_as<T, std::vector<int>>) struct Other;
 
 // Type req
 template <typename T>
 concept TypeRequirement = requires {
     typename T::value_type;
-    typename Other <T>;  // Other instantitaed with T
+    typename Other<T>;  // Other instantitaed with T
 };
 
 namespace {
@@ -142,31 +135,31 @@ void test() {
 }
 
 void printSquare(HasSquare auto number) {
-//    std::cout << number.square() << '\n';
+    //    std::cout << number.square() << '\n';
 }
 
 int test1() {
-    printSquare(IntWithoutSquare{4}); // error: use of function 'void printSquare(auto:11) [with auto:11 = IntWithoutSquare]' with unsatisfied constraints,
-                                       // the required expression 't.square()' is invalid
+    printSquare(
+        IntWithoutSquare{4});  // error: use of function 'void printSquare(auto:11) [with auto:11 = IntWithoutSquare]'
+                               // with unsatisfied constraints, the required expression 't.square()' is invalid
     printSquare(IntWithSquare{5});
 
-//    TypeRequirement auto myVec = std::vector<int>{1, 2, 3};
+    //    TypeRequirement auto myVec = std::vector<int>{1, 2, 3};
 }
 }  // namespace
 
 // nested
 
 template <typename BusinessObjectWithEncodeableStuff>
-requires requires (BusinessObjectWithEncodeableStuff bo) {
+requires requires(BusinessObjectWithEncodeableStuff bo) {
     bo.interfaceA();
     bo.interfaceB();
     { bo.interfaceC() } -> std::same_as<int>;
 }
 void encodeSomeStuff(BusinessObjectWithEncodeableStuff iBusinessObject) {
-//    doStuff();
+    //    doStuff();
     // ...
 }
-
 
 // Logical ops
 
@@ -174,12 +167,10 @@ void encodeSomeStuff(BusinessObjectWithEncodeableStuff iBusinessObject) {
 
 namespace {
 template <typename T, typename U>
-    requires std::unsigned_integral<typename T::Blah>
-    || std::unsigned_integral<typename U::Blah>
-    void foo(T bar, U baz) {
+    requires std::unsigned_integral<typename T::Blah> ||
+    std::unsigned_integral<typename U::Blah> void foo(T bar, U baz) {
     // ...
 }
-
 
 class MyType {
 public:
@@ -192,7 +183,6 @@ int test3() {
     foo(mt, 5);
     foo(5, mt);
     // error: no operand of the disjunction is satisfied
-//     foo(5, 3);
+    //     foo(5, 3);
 }
-}
-
+}  // namespace
