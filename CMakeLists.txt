@@ -55,6 +55,8 @@ link_libraries(${benchmark_LIBRARIES} pthread)
 include_directories(${CMAKE_SOURCE_DIR}/3rdparty/farbot/include)
 
 # It's big
+add_subdirectory(3rdparty/gsl EXCLUDE_FROM_ALL)
+
 #add_subdirectory(3rdparty/bounded-integer)  # Catch troubles
 add_subdirectory(3rdparty/abseil-cpp)
 #add_subdirectory(3rdparty/farbot)  # Can't connect like this

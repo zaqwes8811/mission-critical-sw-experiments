@@ -19,6 +19,7 @@ add_executable(tests-ut
         compile_time_graph.cpp
         cpp_concept_test.cpp
         cpp_ranges_test.cpp
+        gsl_explore_test.cpp
         )
 
 
@@ -28,7 +29,9 @@ target_link_libraries(tests-ut
         )
 
 get_target_property(absl_status_inc absl_status INCLUDE_DIRECTORIES)
-target_include_directories(tests-ut PUBLIC ${absl_status_inc})
+target_include_directories(tests-ut PUBLIC ${absl_status_inc}
+        ${CMAKE_SOURCE_DIR}/3rdparty/gsl/include
+        )
 
 
 get_target_property(absl_status_libs absl_status LINK_LIBRARIES)

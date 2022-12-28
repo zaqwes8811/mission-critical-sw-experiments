@@ -13,3 +13,6 @@
 [submodule "3rdparty/abseil-cpp"]
 	path = 3rdparty/abseil-cpp
 	url = https://github.com/abseil/abseil-cpp.git
+[submodule "3rdparty/gsl"]
+	path = 3rdparty/gsl
+	url = https://github.com/Microsoft/GSL.git

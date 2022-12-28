@@ -6,6 +6,8 @@
 #include <memory>
 #include <tuple>
 
+#include <gtest/gtest.h>
+
 template <typename T>
 concept Node = std::is_object_v<T>;
 
@@ -120,14 +122,32 @@ std::future<int> async_algo1(Cont c) {
     return f;
 }
 
-void test_future() {
+auto async_algo2() {
+    return [](auto p) {  // Promise like interface
+        std::thread t{[p = std::move(p)]() mutable {
+            int answer = 0;
+            p.set_value(answer);
+        }};
+        t.detach();
+    };
+}
+
+TEST(CompileTimeGraphTest, Best) {
     //    auto f = async_algo();
     //    f.than()
     //    f.wait();
 
-    auto f = async_algo1([](int i) {
-        return i;
-    });
+//    auto f = async_algo1([](int i) {
+//        return i;
+//    });
+//
+//    f.get();
 
-    f.get();
+    // separate compose and launch
+
+    auto f = async_algo2();
+//    auto f2 = than(f, [](int i) {
+//
+//    });
+
 }
