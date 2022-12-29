@@ -20,6 +20,7 @@ add_executable(tests-ut
         cpp_concept_test.cpp
         cpp_ranges_test.cpp
         gsl_explore_test.cpp
+        alg_design_test.cpp
         )
 
 
