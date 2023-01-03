@@ -1,6 +1,10 @@
 // https://www.sandordargo.com/blog/2021/02/10/cpp-concepts-motivations
 
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/rational.hpp>
+#include <complex>
 #include <concepts>
+#include <iostream>
 #include <iterator>
 #include <ranges>
 
@@ -145,6 +149,8 @@ int test1() {
     printSquare(IntWithSquare{5});
 
     //    TypeRequirement auto myVec = std::vector<int>{1, 2, 3};
+
+    return {};
 }
 }  // namespace
 
@@ -186,3 +192,86 @@ int test3() {
     //     foo(5, 3);
 }
 }  // namespace
+
+//==================================================================================
+namespace akrzemi {
+// Concept archetypes
+// Concepts in the form added in C++20 used to be called lite.
+
+// https://akrzemi1.wordpress.com/2020/10/26/semantic-requirements-in-concepts/
+
+template <typename T>
+concept Addable = std::regular<T>&& std::totally_ordered<T>&& requires(T x, T y) {
+    { x += y } -> std::same_as<T&>;
+    { x + y } -> std::convertible_to<T>;
+};
+
+template <typename T>
+T sum_impl(T a, T b) {
+    assert(a >= b);
+    a += b;
+    return a;
+}
+
+template <Addable T>
+T sum(T a, T b) {
+    if (b > a) {
+        return sum_impl(b, a);
+    } else {
+        return sum_impl(a, b);
+    }
+}
+
+// Architype
+class A {
+public:
+    // semi-regular
+    A() = default;
+    A(A&&) = default;
+    A(const A&) = default;
+    A& operator=(A&&) = default;
+    A& operator=(const A&) = default;
+    ~A() = default;
+
+    void operator&() const = delete;  // ??
+    friend void operator,(const A&, const A&) = delete;
+
+    // regular
+    friend bool operator==(A const&, A const&) = default;
+
+    // Addable
+    struct Rslt {
+        operator A() { return {}; }
+    };
+    A& operator+=(A const&) { return *this; }
+    friend Rslt operator+(A const&, A const&) { return {}; }
+
+    // Totally ordered
+    friend auto operator<=>(A const&, A const&) = default;
+};
+
+using AddableArchetype = A;
+
+static_assert(std::semiregular<AddableArchetype>);
+static_assert(std::regular<A>);
+static_assert(Addable<AddableArchetype>);  // lack of Rslt convertability
+
+inline void test_concept_usige(AddableArchetype a, AddableArchetype b) { sum(a, b); }
+
+// verify if the type can be used with the library
+static_assert(Addable<boost::rational<int>>);
+// static_assert(Addable<boost::multiprecision::cpp_int>);  // doesn't work/not because of assert
+// static_assert(Addable<std::complex<double>>);  // Ok, but
+
+void test() {
+    int i = 1, j = 2;
+    std::cout << sum(i, j) << std::endl;
+
+    double x = 2.25, y = 5.25;
+    std::cout << sum(x, y) << std::endl;
+
+    //    std::complex<double> z1{1, 0}, z2{0, 1};
+    //    std::cout << sum(z1, z2);
+}
+
+}  // namespace akrzemi

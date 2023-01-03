@@ -149,3 +149,45 @@ TEST(CompileTimeGraphTest, Best) {
     //
     //    });
 }
+
+// V2
+// https://www.youtube.com/watch?v=xiaqNvqRB2E&ab_channel=CppEurope
+
+struct immovable {
+    immovable() = default;
+    immovable(immovable&&) = delete;
+};
+
+template <class R, class T>
+struct just_operation : immovable {
+    R rec;
+    T value;
+
+    friend void start(just_operation& self) { set_value(self.rec, self.value); }
+};
+
+template <class T>
+struct just_sender {
+    T value;
+
+    // every sender have to impl it
+    template <class R>
+    friend just_operation<R, T> connect(just_sender self, R rec) {
+        return {{}, rec, self.value};
+    }
+};
+
+template <class T>
+just_sender<T> just(T t) {
+    return {t};
+}
+
+struct cout_receiver {
+    friend void set_value(cout_receiver& self, auto val) { std::cout << "result:" << val << "\n"; }
+};
+
+TEST(CompileTimeGraphTest, Main) {
+    auto s = just(42);
+    auto op = connect(s, cout_receiver{});
+    start(op);
+}
