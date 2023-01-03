@@ -202,15 +202,28 @@ namespace akrzemi {
 
 template <typename T>
 concept Addable = std::regular<T>&& std::totally_ordered<T>&& requires(T x, T y) {
+    // syntactic // COMPILER CARE ABOUT IT
     { x += y } -> std::same_as<T&>;
     { x + y } -> std::convertible_to<T>;
+
+    // semantic
+    // O(n) - semantic
+    // No way to express it
+    // Num is brocken
+    requires requires {  // USER HAVE TO CARE ABOUT IT
+                         //        (x + y) == (y + x);
+        (x + y) == (x += y);
+    };
 };
 
 template <typename T>
 T sum_impl(T a, T b) {
     assert(a >= b);
-    a += b;
-    return a;
+    //    a += b;
+    //    return a;
+
+    auto r = a + b;
+    return r;
 }
 
 template <Addable T>
@@ -223,6 +236,10 @@ T sum(T a, T b) {
 }
 
 // Architype
+
+// "My observation here is that making sure that the archetype has really the minimum
+// interface is a manual job, and it is difficult. But even if the archetype is
+// not 100% minimum, it can still help us detect many bugs early in the development cycle."
 class A {
 public:
     // semi-regular
@@ -242,9 +259,15 @@ public:
     // Addable
     struct Rslt {
         operator A() { return {}; }
+
+        // Extras
+        Rslt(Rslt&&) = delete;
+        void operator&() const = delete;
+        friend void operator,(Rslt, Rslt) = delete;
+        static Rslt make() { throw 0; }
     };
     A& operator+=(A const&) { return *this; }
-    friend Rslt operator+(A const&, A const&) { return {}; }
+    friend Rslt operator+(A const&, A const&) { return Rslt::make(); }
 
     // Totally ordered
     friend auto operator<=>(A const&, A const&) = default;
@@ -263,6 +286,30 @@ static_assert(Addable<boost::rational<int>>);
 // static_assert(Addable<boost::multiprecision::cpp_int>);  // doesn't work/not because of assert
 // static_assert(Addable<std::complex<double>>);  // Ok, but
 
+struct Num {
+    int i;
+    friend auto operator<=>(Num, Num) = default;
+    Num& operator+=(Num const& n) {
+        i += n.i;
+        return *this;
+    }
+};
+
+struct NumAddExpr {
+    Num const& lhs;
+    Num const& rhs;
+
+    operator Num() { return Num{lhs} += rhs; }
+
+    NumAddExpr(Num const& x, Num const& y) : lhs{x}, rhs{y} {}
+
+    NumAddExpr(NumAddExpr&&) = delete;
+};
+
+NumAddExpr operator+(Num const& x, Num const& y) { return {x, y}; }
+
+static_assert(Addable<Num>);
+
 void test() {
     int i = 1, j = 2;
     std::cout << sum(i, j) << std::endl;
@@ -272,6 +319,101 @@ void test() {
 
     //    std::complex<double> z1{1, 0}, z2{0, 1};
     //    std::cout << sum(z1, z2);
+
+    //    std::cout << sum(Num{1}, Num{2}).i;
+    //    sum(Num{1}, Num{2});
+
+    sum(std::string("a"), std::string("n"));
 }
 
 }  // namespace akrzemi
+
+namespace sem {
+
+// OOP like
+template <typename T>
+constexpr bool enable_addable = false;
+
+template <std::integral T>
+constexpr bool enable_addable<T> = true;
+
+template <std::floating_point T>
+constexpr bool enable_addable<T> = true;
+
+template <typename T>
+concept Addable = std::regular<T>&& requires(T x, T y) {
+    { x += y } -> std::same_as<T&>;
+    { x + y } -> std::convertible_to<T>;
+
+    requires enable_addable<T>;
+};
+
+// users specialization
+template <typename T>
+constexpr bool enable_addable<boost::rational<T>> = true;
+
+// Way 2
+// Inversion
+template <typename T>
+constexpr bool disable_addable = false;
+
+template <typename C, typename T, typename A>
+constexpr bool disable_addable<std::basic_string<C, T, A>> = true;
+
+template <typename T>
+concept Addable2 = std::regular<T>&& requires(T x, T y) {
+    { x += y } -> std::same_as<T&>;
+    { x + y } -> std::convertible_to<T>;
+
+    requires !disable_addable<T>;
+};
+
+// check ranges::view and ranges::range
+}  // namespace sem
+
+namespace groups {
+template <typename T>
+concept OrderedAddable = akrzemi::Addable<T>&& std::totally_ordered<T>&& requires(T x, T y, T z) {
+    /* axiom */ (x < y) == (x + z < y + z);
+};
+
+using akrzemi::Addable;
+template <Addable T>
+bool is_commutative(const T& a, const T& b) {
+    return (a + b) == (b + a);
+}
+
+template <OrderedAddable T>
+void is_ordered_group(T a, T b, T c) {
+    return (a < b) == (a + c < b + c);
+}
+
+// Generic
+template <Addable T>
+T sum(T a, T b) {
+    assert(is_commutative(a, b));
+    return a + b;
+}
+
+// specialized version of the algorithm:
+
+template <typename T>
+T sum_impl(T a, T b) {
+    assert(a >= b);
+    a += b;
+    return a;
+}
+
+template <OrderedAddable T>
+T sum(T a, T b) {
+    assert(is_commutative(a, b));
+    assert(is_ordered_group(a, b, b));
+    assert(is_ordered_group(a, b, a));
+
+    if (b > a)
+        return sum_impl(b, a);
+    else
+        return sum_impl(a, b);
+}
+
+}  // namespace groups
